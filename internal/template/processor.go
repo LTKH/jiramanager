@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"errors"
 	"log"
+	"sync"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -189,8 +190,16 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 			Passwd:     cfg.Jira.Passwd,
 		},
 	}
+
+	var wg sync.WaitGroup
+
 	for _, p := range paths {
-		go func(filename string, cfg *config.Config, clnt db.DbClient, template *Template, test *string){
+
+        wg.Add(1)
+
+		go func(wg *sync.WaitGroup, filename string, cfg *config.Config, clnt db.DbClient, template *Template, test *string){
+
+			defer wg.Done()
 
 			tmpl, err := New(cfg.Server.Conf_dir+"/conf.d/"+filename, template)
 			if err != nil {
@@ -257,8 +266,10 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 				}
 			}
 
-		}(p.Name(), cfg, clnt, template, test)
+		}(&wg, p.Name(), cfg, clnt, template, test)
 	}
+
+	wg.Wait()
 	
 	return nil
 }

@@ -75,6 +75,10 @@ func main() {
 	}()
 
 	go func(cfg *config.Config, clnt db.DbClient) {
+        if cfg.Server.Check_interval == 0 {
+			cfg.Server.Check_interval = 600
+		}
+
 		for {
 
 			//geting tasks from database
@@ -118,34 +122,16 @@ func main() {
 
 	log.Print("[info] jiramanager running ^_-")
 
+	if cfg.Alerts.Interval == 0 {
+		cfg.Alerts.Interval = 600
+	}
+
 	//daemon mode
 	for {
 
 		if err := template.Process(&cfg, client, flTest); err != nil {
 			log.Printf("[error] %v", err)
 		}
-        /*
-		//
-		body, err := newRequest(cfg, "GET", cfg.Jiramanager.Get_alerts, []byte(""), "", "")
-		if err != nil {
-			log.Printf("[error] %v", err)
-		} else {
-
-			//
-			log.Print("[debug] parsing alerts")
-			var dat []map[string]interface{}
-			if err := json.Unmarshal(body, &dat); err != nil {
-				log.Printf("[error] %v", err)
-			}
-
-			//
-			for _, alrt := range dat {
-				if reflect.TypeOf(alrt).Kind() == reflect.Map {
-					createTask(cfg, "default", alrt)
-				}
-			}
-		}
-		*/
 
 		time.Sleep(cfg.Alerts.Interval * time.Second)
 	}
