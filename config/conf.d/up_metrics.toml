@@ -1,0 +1,5 @@
+[alerts]
+alerts   = "http://localhost:8100/api/v1/alerts?match[]={alertname=\"up\"}"
+
+[jira]
+tmpl_src = "default.tmpl"

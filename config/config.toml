@@ -1,0 +1,21 @@
+[db]
+client          = "mysql"
+conn_string     = "root:password@(127.0.0.1)/alertstrap?parseTime=true"
+tasks_table     = "mon_tasks"
+
+[server]
+conf_dir        = "config"
+log_max_size    = 1
+log_max_backups = 3
+log_max_age     = 28
+log_compress    = true
+
+[alerts]
+interval        = 60
+login           = "test"
+passwd          = "test"
+
+[jira]
+jira_api        = "https://***.atlassian.net/rest/api/2/issue"
+login           = "***"
+passwd          = "***"
