@@ -78,6 +78,10 @@ func request(method, url string, data []byte, login, passwd string) ([]byte, err
 		return nil, err
 	}
 
+	if resp.StatusCode >= 300 {
+		return nil, errors.New(string(body))
+	}
+
 	return body, nil
 }
 
