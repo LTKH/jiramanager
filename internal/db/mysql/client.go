@@ -24,7 +24,7 @@ func (db *Client) LoadTask(group_id string) (config.Task, error) {
     var task config.Task
 
     stmt, err := db.client.Prepare(fmt.Sprintf(
-		"select group_id,task_id,task_key,task_self from %s where group_id = ?", 
+		"select group_id,status_id,status_name,task_id,task_key,task_self from %s where group_id = ?", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -32,7 +32,7 @@ func (db *Client) LoadTask(group_id string) (config.Task, error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(group_id).Scan(&task.Group_id, &task.Task_id, &task.Task_key, &task.Task_self)
+	err = stmt.QueryRow(group_id).Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self)
 	if err != nil {
 		return task, nil
 	}
@@ -44,7 +44,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 	var result []config.Task
 
 	rows, err := db.client.Query(fmt.Sprintf(
-		"select group_id,task_id,task_key,task_self from %s", 
+		"select group_id,status_id,status_name,task_id,task_key,task_self from %s", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -54,7 +54,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 
 	for rows.Next() {
 		var task config.Task
-        err := rows.Scan(&task.Group_id, &task.Task_id, &task.Task_key, &task.Task_self)
+        err := rows.Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self)
         if err != nil {
             return nil, err
 		}
@@ -66,7 +66,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 
 func (db *Client) SaveTask(task config.Task) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
-		"replace into %s (group_id,task_id,task_key,task_self) values (?,?,?,?)", 
+		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self) values (?,?,?,?,?,?)", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -74,7 +74,26 @@ func (db *Client) SaveTask(task config.Task) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(task.Group_id, task.Task_id, task.Task_key, task.Task_self)
+	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
+	stmt, err := db.client.Prepare(fmt.Sprintf(
+		"update %s set status_id = ?, status_name = ? where group_id = ?", 
+		db.config.Tasks_table,
+	))
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(status_id, status_name, group_id)
 	if err != nil {
 		return err
 	}

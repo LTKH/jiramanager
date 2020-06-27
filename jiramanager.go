@@ -103,6 +103,7 @@ func main() {
 				    continue
 				}
 
+                rem := false
                 for _, s := range cfg.Server.Check_status {
                     if issue.Fields.Status.Id == s {
 						if err := clnt.DeleteTask(task.Group_id); err != nil {
@@ -110,10 +111,19 @@ func main() {
                             continue
 						}
 						log.Printf("[info] task is removed from the database: %v", task.Task_self)
+						rem = true
+						continue
 					}
 				}
 
-				
+				if !rem && issue.Fields.Status.Id != task.Status_id {
+					if err := clnt.UpdateStatus(task.Group_id, issue.Fields.Status.Id, issue.Fields.Status.Name); err != nil {
+						log.Printf("[error] %v", err)
+						continue
+					}
+					log.Printf("[info] task status updated: %s", task.Task_self)
+				}
+
 			}
 
             time.Sleep(cfg.Server.Check_interval * time.Second)

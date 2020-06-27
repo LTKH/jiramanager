@@ -42,6 +42,8 @@ type DB struct {
 
 type Task struct {
 	Group_id             string
+	Status_id            string
+	Status_name          string
 	Task_id              string
 	Task_key             string
     Task_self            string

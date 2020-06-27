@@ -10,6 +10,7 @@ type DbClient interface {
 	LoadTask(mgrp_id string) (config.Task, error)
 	LoadTasks() ([]config.Task, error)
 	SaveTask(task config.Task) error
+	UpdateStatus(group_id, status_id, status_name string) error
 	DeleteTask(group_id string) error
 }
 
