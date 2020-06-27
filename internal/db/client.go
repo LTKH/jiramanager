@@ -8,7 +8,9 @@ import (
 
 type DbClient interface {
 	LoadTask(mgrp_id string) (config.Task, error)
+	LoadTasks() ([]config.Task, error)
 	SaveTask(task config.Task) error
+	DeleteTask(group_id string) error
 }
 
 func NewClient(config *config.DB) (DbClient, error) {

@@ -5,6 +5,9 @@ tasks_table     = "mon_tasks"
 
 [server]
 conf_dir        = "config"
+check_status    = ["10002"]
+check_interval  = 60
+check_delay     = 5
 log_max_size    = 1
 log_max_backups = 3
 log_max_age     = 28

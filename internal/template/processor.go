@@ -48,7 +48,16 @@ type Create struct {
 	Self         string
 }
 
-func request(method, url string, data []byte, login, passwd string) ([]byte, error){
+type Issue struct {
+	Fields struct {
+		Status struct {
+			Id   string
+			Name string
+		}
+	}
+}
+
+func Request(method, url string, data []byte, login, passwd string) ([]byte, error){
 
 	//ignore certificate
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -101,7 +110,7 @@ func New(filename string, tmpl *Template) (*Template, error) {
 
 func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 	
-	body, err := request("GET", tl.Alerts.Alerts, nil, tl.Alerts.Login, tl.Alerts.Passwd)
+	body, err := Request("GET", tl.Alerts.Alerts, nil, tl.Alerts.Login, tl.Alerts.Passwd)
     if err != nil {
 		return nil, err
 	}
@@ -148,7 +157,7 @@ func (tl *Template) createTask(data []byte) (*Create, error) {
 
     var resp *Create
 
-	body, err := request("POST", tl.Jira.Jira_api, data, tl.Jira.Login, tl.Jira.Passwd)
+	body, err := Request("POST", tl.Jira.Jira_api, data, tl.Jira.Login, tl.Jira.Passwd)
     if err != nil {
 		return resp, err
 	}
@@ -232,6 +241,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 						log.Printf("[error] %v", err)
 						continue
 					}
+					log.Printf("[info] task created in jira: %s", ctask.Self)
 
 					//set a record from the database
 					stask := &config.Task{
@@ -243,7 +253,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 					if err := clnt.SaveTask(*stask); err != nil {
 						log.Printf("[error] %v", err)
 					}
-					log.Printf("[info] task saved: %s", ctask.Self)
+					log.Printf("[info] task saved to database: %s", ctask.Self)
 				}
 			}
 

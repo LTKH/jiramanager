@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	//"encoding/json"
 	//"io/ioutil"
 	//"bytes"
 	"runtime"
@@ -17,6 +16,7 @@ import (
 	"flag"
 	//"regexp"
 	//"strconv"
+	"encoding/json"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"github.com/ltkh/jiramanager/internal/db"
 	"github.com/ltkh/jiramanager/internal/config"
@@ -46,8 +46,6 @@ func main() {
 		log.Fatalf("[error] %v", err)
 	}
 
-	log.Print("[info] jiramanager running ^_-")
-
 	if *lgFile != "" {
 		if cfg.Server.Log_max_size == 0 {
 			cfg.Server.Log_max_size = 1
@@ -75,6 +73,50 @@ func main() {
 		log.Print("[info] jiramanager stopped")
 		os.Exit(0)
 	}()
+
+	go func(cfg *config.Config, clnt db.DbClient) {
+		for {
+
+			//geting tasks from database
+            tasks, err := clnt.LoadTasks()
+            if err != nil {
+				log.Printf("[error] %v", err)
+				continue
+			}
+
+            for _, task := range tasks {
+				time.Sleep(cfg.Server.Check_delay * time.Second)
+
+				body, err := template.Request("GET", task.Task_self+"?fields=status", nil, cfg.Jira.Login, cfg.Jira.Passwd)
+				if err != nil {
+					log.Printf("[error] %s: %v", task.Task_key, err)
+					continue
+				}
+
+				var issue template.Issue
+				if err := json.Unmarshal(body, &issue); err != nil {
+					log.Printf("[error] %v", err)
+				    continue
+				}
+
+                for _, s := range cfg.Server.Check_status {
+                    if issue.Fields.Status.Id == s {
+						if err := clnt.DeleteTask(task.Group_id); err != nil {
+							log.Printf("[error] %v", err)
+                            continue
+						}
+						log.Printf("[info] task is removed from the database: %v", task.Task_self)
+					}
+				}
+
+				
+			}
+
+            time.Sleep(cfg.Server.Check_interval * time.Second)
+		}
+	}(&cfg, client)
+
+	log.Print("[info] jiramanager running ^_-")
 
 	//daemon mode
 	for {

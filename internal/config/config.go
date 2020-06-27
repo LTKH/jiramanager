@@ -10,6 +10,9 @@ type Config struct {
 	DB                   DB
 	Server struct {
 		Conf_dir         string
+		Check_status     []string
+		Check_interval   time.Duration
+		Check_delay      time.Duration
 		Log_max_size     int
 		Log_max_backups  int
 		Log_max_age      int
