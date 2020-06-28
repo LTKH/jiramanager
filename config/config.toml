@@ -8,6 +8,7 @@ conf_dir        = "config"
 check_status    = ["10002"]
 check_interval  = 60
 check_delay     = 5
+check_resolve   = 100
 log_max_size    = 1
 log_max_backups = 3
 log_max_age     = 28

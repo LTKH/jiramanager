@@ -8,7 +8,7 @@ import (
 	"sync"
 	"encoding/json"
 	"net/http"
-	"strconv"
+	//"strconv"
 	"bytes"
 	"text/template"
 	"crypto/tls"
@@ -127,12 +127,13 @@ func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
 
 	funcMap := template.FuncMap{
-		"int": func(s string) (int, error){
-			c, err := strconv.Atoi(s)
-			if err != nil {
-				return 0, err
-			}
-			return c, nil
+		"float": func(s interface{}) (float64, error){
+			return s.(float64), nil
+			//c, err := strconv.Atoi(s)
+			//if err != nil {
+			//	return 0, err
+			//}
+			//return c, nil
 		},
 	}
 

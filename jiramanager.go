@@ -103,26 +103,26 @@ func main() {
 				    continue
 				}
 
-                rem := false
-                for _, s := range cfg.Server.Check_status {
-                    if issue.Fields.Status.Id == s {
-						if err := clnt.DeleteTask(task.Group_id); err != nil {
-							log.Printf("[error] %v", err)
-                            continue
-						}
-						log.Printf("[info] task is removed from the database: %v", task.Task_self)
-						rem = true
-						continue
-					}
-				}
-
-				if !rem && issue.Fields.Status.Id != task.Status_id {
+				if issue.Fields.Status.Id != task.Status_id {
 					if err := clnt.UpdateStatus(task.Group_id, issue.Fields.Status.Id, issue.Fields.Status.Name); err != nil {
 						log.Printf("[error] %v", err)
 						continue
 					}
+					task.Updated = time.Now().UTC().Unix()
 					log.Printf("[info] task status updated: %s", task.Task_self)
 				}
+
+				if task.Updated + cfg.Server.Check_resolve < time.Now().UTC().Unix() {
+					for _, s := range cfg.Server.Check_status {
+						if issue.Fields.Status.Id == s {
+							if err := clnt.DeleteTask(task.Group_id); err != nil {
+								log.Printf("[error] %v", err)
+								continue
+							}
+							log.Printf("[info] task is removed from the database: %v", task.Task_self)
+						}
+					}
+			    }
 
 			}
 

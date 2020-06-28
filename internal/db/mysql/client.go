@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"time"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ltkh/jiramanager/internal/config"
@@ -44,7 +45,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 	var result []config.Task
 
 	rows, err := db.client.Query(fmt.Sprintf(
-		"select group_id,status_id,status_name,task_id,task_key,task_self from %s", 
+		"select group_id,status_id,status_name,task_id,task_key,task_self,created,updated from %s", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -54,7 +55,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 
 	for rows.Next() {
 		var task config.Task
-        err := rows.Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self)
+        err := rows.Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self, &task.Created, &task.Updated)
         if err != nil {
             return nil, err
 		}
@@ -66,7 +67,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 
 func (db *Client) SaveTask(task config.Task) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
-		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self) values (?,?,?,?,?,?)", 
+		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self,created,updated) values (?,?,?,?,?,?,?,?)", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -74,7 +75,8 @@ func (db *Client) SaveTask(task config.Task) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self)
+	utc := time.Now().UTC().Unix()
+	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self, utc, utc)
 	if err != nil {
 		return err
 	}
@@ -85,7 +87,7 @@ func (db *Client) SaveTask(task config.Task) error {
 
 func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
-		"update %s set status_id = ?, status_name = ? where group_id = ?", 
+		"update %s set status_id = ?, status_name = ?, updated = ? where group_id = ?", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -93,7 +95,8 @@ func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(status_id, status_name, group_id)
+	utc := time.Now().UTC().Unix()
+	_, err = stmt.Exec(status_id, status_name, utc, group_id)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ type Config struct {
 		Check_status     []string
 		Check_interval   time.Duration
 		Check_delay      time.Duration
+		Check_resolve    int64
 		Log_max_size     int
 		Log_max_backups  int
 		Log_max_age      int
@@ -46,7 +47,9 @@ type Task struct {
 	Status_name          string
 	Task_id              string
 	Task_key             string
-    Task_self            string
+	Task_self            string
+	Created              int64
+	Updated              int64
 }
 
 func New(filename string) (cfg Config, err error) {
