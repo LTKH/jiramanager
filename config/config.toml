@@ -5,6 +5,8 @@ tasks_table     = "mon_tasks"
 
 [server]
 conf_dir        = "config"
+alerts_interval = 20
+check_enabled   = true
 check_status    = ["10002"]
 check_interval  = 60
 check_delay     = 5
@@ -15,11 +17,10 @@ log_max_age     = 28
 log_compress    = true
 
 [alerts]
-interval        = 60
 login           = "test"
 passwd          = "test"
 
 [jira]
-jira_api        = "https://***.atlassian.net/rest/api/2/issue"
+api             = "https://***.atlassian.net/rest/api/2/issue"
 login           = "***"
 passwd          = "***"

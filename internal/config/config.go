@@ -10,6 +10,8 @@ type Config struct {
 	DB                   DB
 	Server struct {
 		Conf_dir         string
+		Alerts_interval  time.Duration
+		Check_enabled    bool
 		Check_status     []string
 		Check_interval   time.Duration
 		Check_delay      time.Duration
@@ -20,13 +22,12 @@ type Config struct {
 		Log_compress     bool
 	}
 	Alerts struct {
-		Interval         time.Duration
 		Login            string
 		Passwd           string
 	}
 	
 	Jira struct {
-		Jira_api         string
+		Api              string
 		Login            string
 		Passwd           string
 	}

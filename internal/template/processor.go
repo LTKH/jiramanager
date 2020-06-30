@@ -23,14 +23,14 @@ type Template struct {
 }
 
 type Alerts struct {
-	Alerts       string
+	Api          string
 	Login        string
 	Passwd       string
 }
 type Jira struct {
-	Jira_api     string
-	Tmpl_dir     string 
-	Tmpl_src     string
+	Api          string
+	Dir          string 
+	Src          string
 	Login        string
 	Passwd       string
 }
@@ -111,7 +111,7 @@ func New(filename string, tmpl *Template) (*Template, error) {
 
 func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 	
-	body, err := Request("GET", tl.Alerts.Alerts, nil, tl.Alerts.Login, tl.Alerts.Passwd)
+	body, err := Request("GET", tl.Alerts.Api, nil, tl.Alerts.Login, tl.Alerts.Passwd)
     if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
 		},
 	}
 
-	tmpl, err := template.New(tl.Jira.Tmpl_src).Funcs(funcMap).ParseFiles(tl.Jira.Tmpl_dir+"/"+tl.Jira.Tmpl_src)
+	tmpl, err := template.New(tl.Jira.Src).Funcs(funcMap).ParseFiles(tl.Jira.Dir+"/"+tl.Jira.Src)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (tl *Template) createTask(data []byte) (*Create, error) {
 
     var resp *Create
 
-	body, err := Request("POST", tl.Jira.Jira_api, data, tl.Jira.Login, tl.Jira.Passwd)
+	body, err := Request("POST", tl.Jira.Api, data, tl.Jira.Login, tl.Jira.Passwd)
     if err != nil {
 		return resp, err
 	}
@@ -185,8 +185,8 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 			Passwd:     cfg.Alerts.Passwd,
 		},
 		Jira: Jira{
-            Jira_api:   cfg.Jira.Jira_api,
-			Tmpl_dir:   cfg.Server.Conf_dir+"/templates/",
+            Api:        cfg.Jira.Api,
+			Dir:        cfg.Server.Conf_dir+"/templates/",
 			Login:      cfg.Jira.Login,
 			Passwd:     cfg.Jira.Passwd,
 		},

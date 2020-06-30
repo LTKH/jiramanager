@@ -74,66 +74,71 @@ func main() {
 		os.Exit(0)
 	}()
 
-	go func(cfg *config.Config, clnt db.DbClient) {
-        if cfg.Server.Check_interval == 0 {
-			cfg.Server.Check_interval = 600
-		}
+	//checking the status of tasks
+	if cfg.Server.Check_enabled {
 
-		for {
+		go func(cfg *config.Config, clnt db.DbClient) {
 
-			//geting tasks from database
-            tasks, err := clnt.LoadTasks()
-            if err != nil {
-				log.Printf("[error] %v", err)
-				continue
+			if cfg.Server.Check_interval == 0 {
+				cfg.Server.Check_interval = 600
 			}
 
-            for _, task := range tasks {
-				time.Sleep(cfg.Server.Check_delay * time.Second)
+			for {
 
-				body, err := template.Request("GET", task.Task_self+"?fields=status", nil, cfg.Jira.Login, cfg.Jira.Passwd)
+				//geting tasks from database
+				tasks, err := clnt.LoadTasks()
 				if err != nil {
-					log.Printf("[error] %s: %v", task.Task_key, err)
+					log.Printf("[error] %v", err)
 					continue
 				}
 
-				var issue template.Issue
-				if err := json.Unmarshal(body, &issue); err != nil {
-					log.Printf("[error] %v", err)
-				    continue
-				}
+				for _, task := range tasks {
+					time.Sleep(cfg.Server.Check_delay * time.Second)
 
-				if issue.Fields.Status.Id != task.Status_id {
-					if err := clnt.UpdateStatus(task.Group_id, issue.Fields.Status.Id, issue.Fields.Status.Name); err != nil {
+					body, err := template.Request("GET", task.Task_self+"?fields=status", nil, cfg.Jira.Login, cfg.Jira.Passwd)
+					if err != nil {
+						log.Printf("[error] %s: %v", task.Task_key, err)
+						continue
+					}
+
+					var issue template.Issue
+					if err := json.Unmarshal(body, &issue); err != nil {
 						log.Printf("[error] %v", err)
 						continue
 					}
-					task.Updated = time.Now().UTC().Unix()
-					log.Printf("[info] task status updated: %s", task.Task_self)
-				}
 
-				if task.Updated + cfg.Server.Check_resolve < time.Now().UTC().Unix() {
-					for _, s := range cfg.Server.Check_status {
-						if issue.Fields.Status.Id == s {
-							if err := clnt.DeleteTask(task.Group_id); err != nil {
-								log.Printf("[error] %v", err)
-								continue
+					if issue.Fields.Status.Id != task.Status_id {
+						if err := clnt.UpdateStatus(task.Group_id, issue.Fields.Status.Id, issue.Fields.Status.Name); err != nil {
+							log.Printf("[error] %v", err)
+							continue
+						}
+						task.Updated = time.Now().UTC().Unix()
+						log.Printf("[info] task status updated: %s", task.Task_self)
+					}
+
+					if task.Updated + cfg.Server.Check_resolve < time.Now().UTC().Unix() {
+						for _, s := range cfg.Server.Check_status {
+							if issue.Fields.Status.Id == s {
+								if err := clnt.DeleteTask(task.Group_id); err != nil {
+									log.Printf("[error] %v", err)
+									continue
+								}
+								log.Printf("[info] task is removed from the database: %v", task.Task_self)
 							}
-							log.Printf("[info] task is removed from the database: %v", task.Task_self)
 						}
 					}
-			    }
 
+				}
+
+				time.Sleep(cfg.Server.Check_interval * time.Second)
 			}
-
-            time.Sleep(cfg.Server.Check_interval * time.Second)
-		}
-	}(&cfg, client)
+		}(&cfg, client)
+	}
 
 	log.Print("[info] jiramanager running ^_-")
 
-	if cfg.Alerts.Interval == 0 {
-		cfg.Alerts.Interval = 600
+	if cfg.Server.Alerts_interval == 0 {
+		cfg.Server.Alerts_interval = 600
 	}
 
 	//daemon mode
@@ -143,6 +148,6 @@ func main() {
 			log.Printf("[error] %v", err)
 		}
 
-		time.Sleep(cfg.Alerts.Interval * time.Second)
+		time.Sleep(cfg.Server.Alerts_interval * time.Second)
 	}
 }
