@@ -14,8 +14,6 @@ import (
 	//"reflect"
 	//"text/template"
 	"flag"
-	//"regexp"
-	//"strconv"
 	"encoding/json"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"github.com/ltkh/jiramanager/internal/db"
