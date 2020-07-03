@@ -1,18 +1,12 @@
 package main
 
 import (
-	//"net/http"
-	//"crypto/tls"
 	"time"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	//"io/ioutil"
-	//"bytes"
 	"runtime"
-	//"reflect"
-	//"text/template"
 	"flag"
 	"encoding/json"
 	"gopkg.in/natefinch/lumberjack.v2"

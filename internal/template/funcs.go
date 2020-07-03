@@ -5,46 +5,52 @@ import (
 	"reflect"
 )
 
-// add returns the sum of a and b.
-func add(b, a interface{}) (interface{}, error) {
+func tmpl_int(i interface{}) (int64, error) {
+	iv := reflect.ValueOf(i)
+	
+	switch iv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return iv.Int(), nil
+	}
+
+	return 0, fmt.Errorf("unknown type for %q (%T)", iv, i)	
+}
+
+func tmpl_float(i interface{}) (float64, error) {
+	iv := reflect.ValueOf(i)
+	
+	switch iv.Kind() {
+		case reflect.Float32, reflect.Float64:
+			return iv.Float(), nil	
+	}
+
+	return 0, fmt.Errorf("unknown type for %q (%T)", iv, i)
+}
+
+func tmpl_add(b, a interface{}) (float64, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
 
 	switch av.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return av.Int() + bv.Int(), nil
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return av.Int() + int64(bv.Uint()), nil
-		case reflect.Float32, reflect.Float64:
-			return float64(av.Int()) + bv.Float(), nil
+		case reflect.Int:
+			switch bv.Kind() {
+				case reflect.Int:
+					return float64(av.Int() + bv.Int()), nil
+				case reflect.Float64:
+					return float64(av.Int()) + bv.Float(), nil
+				default:
+					return 0, fmt.Errorf("unknown type for %q (%T)", bv, b)
+			}
+		case reflect.Float64:
+			switch bv.Kind() {
+				case reflect.Int:
+					return av.Float() + float64(bv.Int()), nil
+				case reflect.Float64:
+					return av.Float() + bv.Float(), nil
+				default:
+					return 0, fmt.Errorf("unknown type for %q (%T)", bv, b)
+			}
 		default:
-			return nil, fmt.Errorf("add: unknown type for %q (%T)", bv, b)
-		}
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return int64(av.Uint()) + bv.Int(), nil
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return av.Uint() + bv.Uint(), nil
-		case reflect.Float32, reflect.Float64:
-			return float64(av.Uint()) + bv.Float(), nil
-		default:
-			return nil, fmt.Errorf("add: unknown type for %q (%T)", bv, b)
-		}
-	case reflect.Float32, reflect.Float64:
-		switch bv.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return av.Float() + float64(bv.Int()), nil
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return av.Float() + float64(bv.Uint()), nil
-		case reflect.Float32, reflect.Float64:
-			return av.Float() + bv.Float(), nil
-		default:
-			return nil, fmt.Errorf("add: unknown type for %q (%T)", bv, b)
-		}
-	default:
-		return nil, fmt.Errorf("add: unknown type for %q (%T)", av, a)
+			return 0, fmt.Errorf("unknown type for %q (%T)", av, a)
 	}
 }

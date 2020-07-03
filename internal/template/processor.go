@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"bytes"
-	"time"
 	"text/template"
 	"crypto/tls"
 	"github.com/naoina/toml"
@@ -40,21 +39,8 @@ type Data struct {
 	Status       string                  
 	Error        string                  
 	Data struct {
-		Alerts   []Alert
+		Alerts   []interface{}
 	}            
-}
-
-type Alert struct {
-	AlertId      string                  
-	GroupId      string                  
-	Status       string                  
-	StartsAt     time.Time               
-	EndsAt       time.Time               
-	Repeat       int                     
-	ChangeSt     int                     
-	Labels       map[string]interface{}  
-	Annotations  map[string]interface{}  
-	GeneratorURL string                  
 }
 
 type Create struct {
@@ -123,7 +109,7 @@ func New(filename string, tmpl *Template) (*Template, error) {
 	return tmpl, nil
 }
 
-func (tl *Template) getAlerts(cfg *config.Config) ([]Alert, error) {
+func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 	
 	body, err := Request("GET", tl.Alerts.Api, nil, tl.Alerts.Login, tl.Alerts.Passwd)
     if err != nil {
@@ -138,10 +124,12 @@ func (tl *Template) getAlerts(cfg *config.Config) ([]Alert, error) {
 	return resp.Data.Alerts, nil
 }
 
-func (tl *Template) newTemplate(alert Alert) ([]byte, error) {
+func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
 
 	funcMap := template.FuncMap{
-		"add": add,
+		"int": tmpl_int,
+		"float": tmpl_float,
+		"add": tmpl_add,
 	}
 
 	tmpl, err := template.New(tl.Jira.Src).Funcs(funcMap).ParseFiles(tl.Jira.Dir+"/"+tl.Jira.Src)
@@ -223,13 +211,16 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 			for _, alrt := range alrts {
 
-				if alrt.GroupId == "" {
+				a := alrt.(map[string]interface{})
+
+
+				if a["groupId"] == "" {
 					log.Print("[error] undefined field groupId")
 					continue
 				}
 				
 				//get a record from the database
-				ltask, err := clnt.LoadTask(alrt.GroupId)
+				ltask, err := clnt.LoadTask(a["groupId"].(string))
 				if err != nil {
 					log.Printf("[error] %v", err)
 					continue
@@ -259,7 +250,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 					//set a record from the database
 					stask := &config.Task{
-						Group_id:  alrt.GroupId,
+						Group_id:  a["groupId"].(string),
 						Task_id:   ctask.Id,
 						Task_key:  ctask.Key,
 						Task_self: ctask.Self,
