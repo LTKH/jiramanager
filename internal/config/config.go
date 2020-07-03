@@ -25,7 +25,6 @@ type Config struct {
 		Login            string
 		Passwd           string
 	}
-	
 	Jira struct {
 		Api              string
 		Login            string

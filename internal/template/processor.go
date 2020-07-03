@@ -8,8 +8,8 @@ import (
 	"sync"
 	"encoding/json"
 	"net/http"
-	//"strconv"
 	"bytes"
+	"time"
 	"text/template"
 	"crypto/tls"
 	"github.com/naoina/toml"
@@ -27,6 +27,7 @@ type Alerts struct {
 	Login        string
 	Passwd       string
 }
+
 type Jira struct {
 	Api          string
 	Dir          string 
@@ -39,8 +40,21 @@ type Data struct {
 	Status       string                  
 	Error        string                  
 	Data struct {
-		Alerts   []interface{}
+		Alerts   []Alert
 	}            
+}
+
+type Alert struct {
+	AlertId      string                  
+	GroupId      string                  
+	Status       string                  
+	StartsAt     time.Time               
+	EndsAt       time.Time               
+	Repeat       int                     
+	ChangeSt     int                     
+	Labels       map[string]interface{}  
+	Annotations  map[string]interface{}  
+	GeneratorURL string                  
 }
 
 type Create struct {
@@ -109,7 +123,7 @@ func New(filename string, tmpl *Template) (*Template, error) {
 	return tmpl, nil
 }
 
-func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
+func (tl *Template) getAlerts(cfg *config.Config) ([]Alert, error) {
 	
 	body, err := Request("GET", tl.Alerts.Api, nil, tl.Alerts.Login, tl.Alerts.Passwd)
     if err != nil {
@@ -124,17 +138,10 @@ func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 	return resp.Data.Alerts, nil
 }
 
-func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
+func (tl *Template) newTemplate(alert Alert) ([]byte, error) {
 
 	funcMap := template.FuncMap{
-		"float": func(s interface{}) (float64, error){
-			return s.(float64), nil
-			//c, err := strconv.Atoi(s)
-			//if err != nil {
-			//	return 0, err
-			//}
-			//return c, nil
-		},
+		"add": add,
 	}
 
 	tmpl, err := template.New(tl.Jira.Src).Funcs(funcMap).ParseFiles(tl.Jira.Dir+"/"+tl.Jira.Src)
@@ -216,16 +223,13 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 			for _, alrt := range alrts {
 
-				//getting group id
-				a := alrt.(map[string]interface{})
-				groupId, ok := a["groupId"].(string)
-				if !ok {
-					log.Print("[error] undefined groupId field")
+				if alrt.GroupId == "" {
+					log.Print("[error] undefined field groupId")
 					continue
 				}
 				
 				//get a record from the database
-				ltask, err := clnt.LoadTask(groupId)
+				ltask, err := clnt.LoadTask(alrt.GroupId)
 				if err != nil {
 					log.Printf("[error] %v", err)
 					continue
@@ -255,7 +259,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 					//set a record from the database
 					stask := &config.Task{
-						Group_id:  groupId,
+						Group_id:  alrt.GroupId,
 						Task_id:   ctask.Id,
 						Task_key:  ctask.Key,
 						Task_self: ctask.Self,

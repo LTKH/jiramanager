@@ -1,17 +1,19 @@
-{{ if eq .status "firing" -}}
-    {{- if eq .labels.alertname "up" -}}
-        {
-            "fields": {
-                "project":
-                {
-                    "key": "TEST"
-                },
-                "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
-                "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
-                "issuetype": {
-                    "id": "10002"
+{{ if eq .Status "firing" -}}
+    {{ if ge (add .Repeat 1) 3 -}}
+        {{- if eq .Labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST"
+                    },
+                    "summary": "Monitoring {{ .Labels.node }} - {{ .Labels.alertname }} ({{ .Status }})",
+                    "description": "Сервер {{ .Labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
                 }
             }
-        }
-    {{- end -}}
+        {{- end -}}
+    {{ end -}}
 {{ end -}}
