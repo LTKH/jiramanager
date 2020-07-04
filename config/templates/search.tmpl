@@ -1,5 +1,137 @@
-{
-  "jql": "key = '{{ .task_key }}' AND resolution = Unresolved",
-  "fields": ["summary","status"],
-  "maxResults": 1
-}
+{{ if eq .status "firing" -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+        {{- if eq .labels.alertname "up" -}}
+            {
+                "fields": {
+                    "project":
+                    {
+                        "key": "TEST2"
+                    },
+                    "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
+                    "description": "Сервер {{ .labels.node }} недоступен. Необходимо проверить состояние сервера или удалить его из Etcd.",
+                    "issuetype": {
+                        "id": "10002"
+                    }
+                }
+            }
+        {{- end -}}
+{{ end -}}

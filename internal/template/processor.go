@@ -95,18 +95,18 @@ func Request(method, url string, data []byte, login, passwd string) ([]byte, err
 	return body, nil
 }
 
-func New(filename string, tmpl *Template) (*Template, error) {
+func New(filename string, tmpl Template) (*Template, error) {
 	f, err := os.Open(filename)
 	if err != nil {
-		return tmpl, err
+		return &tmpl, err
 	}
 	defer f.Close()
 
 	if err := toml.NewDecoder(f).Decode(&tmpl); err != nil {
-		return tmpl, err
+		return &tmpl, err
 	}
 
-	return tmpl, nil
+	return &tmpl, nil
 }
 
 func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
@@ -162,14 +162,17 @@ func (tl *Template) createTask(data []byte) (*Create, error) {
 }
 
 func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
+
     paths, err := ioutil.ReadDir(cfg.Server.Conf_dir+"/conf.d")
 	if err != nil {
 		return err
 	}
+	
 	if len(paths) < 1 {
 		return errors.New("found no templates")
 	}
-	template := &Template{
+
+	template := Template{
 		Alerts: Alerts{
 			Login:      cfg.Alerts.Login,
 			Passwd:     cfg.Alerts.Passwd,
@@ -188,7 +191,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
         wg.Add(1)
 
-		go func(wg *sync.WaitGroup, filename string, cfg *config.Config, clnt db.DbClient, template *Template, test *string){
+		go func(wg *sync.WaitGroup, filename string, cfg *config.Config, clnt db.DbClient, template Template, test *string){
 
 			defer wg.Done()
 
@@ -208,7 +211,6 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 				a := alrt.(map[string]interface{})
 
-
 				if a["groupId"] == "" {
 					log.Print("[error] undefined field groupId")
 					continue
@@ -222,7 +224,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 				}
 				
 				if ltask.Group_id == "" {
-                    //generate template
+					//generate template
 					data, err := tmpl.newTemplate(alrt)
 					if err != nil {
 						log.Printf("[error] %v", err)
