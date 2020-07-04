@@ -142,11 +142,6 @@ func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	var dat interface{}
-	if err := json.Unmarshal(tpl.Bytes(), &dat); err != nil {
-		return nil, err
-	}
-
 	return tpl.Bytes(), nil
 }
 
@@ -237,6 +232,12 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 					//test
 					if *test != "" {
 						log.Printf("[test] %v", string(data))
+						continue
+					}
+
+					var dat interface{}
+					if err := json.Unmarshal(data, &dat); err != nil {
+						log.Printf("[error] %v", err)
 						continue
 					}
 
