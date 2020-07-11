@@ -50,6 +50,7 @@ type Task struct {
 	Task_self            string
 	Created              int64
 	Updated              int64
+	Template             string
 }
 
 func New(filename string) (cfg Config, err error) {

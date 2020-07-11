@@ -239,7 +239,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 
 					var dat interface{}
 					if err := json.Unmarshal(data, &dat); err != nil {
-						log.Printf("[error] %v", err)
+						log.Printf("[warning] %v", err)
 						continue
 					}
 
@@ -257,6 +257,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 						Task_id:   ctask.Id,
 						Task_key:  ctask.Key,
 						Task_self: ctask.Self,
+						Template:  tmpl.Jira.Src,
 					}
 					if err := clnt.SaveTask(*stask); err != nil {
 						log.Printf("[error] %v", err)

@@ -67,7 +67,7 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 
 func (db *Client) SaveTask(task config.Task) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
-		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self,created,updated) values (?,?,?,?,?,?,?,?)", 
+		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self,created,updated,template) values (?,?,?,?,?,?,?,?,?)", 
 		db.config.Tasks_table,
 	))
 	if err != nil {
@@ -76,7 +76,7 @@ func (db *Client) SaveTask(task config.Task) error {
 	defer stmt.Close()
 
 	utc := time.Now().UTC().Unix()
-	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self, utc, utc)
+	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self, utc, utc, task.Template)
 	if err != nil {
 		return err
 	}

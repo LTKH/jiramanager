@@ -9,3 +9,5 @@ create table if not exists mon_tasks (
   `updated`       bigint(20) default 0,
   unique key IDX_mon_tasks_group_id (group_id)
 ) engine InnoDB default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+alter table mon_tasks add column `template` varchar(250);

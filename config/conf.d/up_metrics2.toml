@@ -1,5 +1,0 @@
-[alerts]
-api = "http://localhost:8100/api/v1/alerts?match[]={alertname=\"up\"}&test=2"
-
-[jira]
-src = "search.tmpl"
