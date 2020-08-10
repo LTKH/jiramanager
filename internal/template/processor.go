@@ -240,7 +240,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 					var dat interface{}
 					if err := json.Unmarshal(data, &dat); err != nil {
 						log.Printf("[warning] %v: %v", tmpl.Jira.Src, err)
-						log.Printf("%#v", data)
+						log.Printf("%#v", string(data))
 						continue
 					}
 
