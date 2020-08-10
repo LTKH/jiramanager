@@ -9,8 +9,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"bytes"
+	"strings"
 	"text/template"
 	"crypto/tls"
+	"strconv"
 	"github.com/naoina/toml"
 	"github.com/ltkh/jiramanager/internal/db"
 	"github.com/ltkh/jiramanager/internal/config"
@@ -127,9 +129,14 @@ func (tl *Template) getAlerts(cfg *config.Config) ([]interface{}, error) {
 func (tl *Template) newTemplate(alert interface{}) ([]byte, error) {
 
 	funcMap := template.FuncMap{
-		"int": tmpl_int,
-		"float": tmpl_float,
-		"add": tmpl_add,
+		"toInt":           toInt,
+		"toFloat":         toFloat,
+		"add":             addFunc,
+		"replace":         strings.Replace,
+		"regexReplace":    regexReplaceAll,
+		"lookupIP":        LookupIP,
+	    "lookupIPV4":      LookupIPV4,
+		"lookupIPV6":      LookupIPV6,
 	}
 
 	tmpl, err := template.New(tl.Jira.Src).Funcs(funcMap).ParseFiles(tl.Jira.Dir+"/"+tl.Jira.Src)
@@ -237,10 +244,11 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 						continue
 					}
 
+					str := strconv.Quote(string(data))
+
 					var dat interface{}
-					if err := json.Unmarshal(data, &dat); err != nil {
+					if err := json.Unmarshal([]byte(str), &dat); err != nil {
 						log.Printf("[warning] %v: %v", tmpl.Jira.Src, err)
-						log.Printf("%#v", string(data))
 						continue
 					}
 
@@ -264,6 +272,7 @@ func Process(cfg *config.Config, clnt db.DbClient, test *string) error {
 						log.Printf("[error] %v", err)
 					}
 					log.Printf("[info] task saved to database: %s", ctask.Self)
+
 				}
 			}
 

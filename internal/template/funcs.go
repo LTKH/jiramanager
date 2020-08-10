@@ -3,9 +3,13 @@ package template
 import (
 	"fmt"
 	"reflect"
+	"regexp"
+	"strings"
+	"sort"
+	"net"
 )
 
-func tmpl_int(i interface{}) (int64, error) {
+func toInt(i interface{}) (int64, error) {
 	iv := reflect.ValueOf(i)
 	
 	switch iv.Kind() {
@@ -18,7 +22,7 @@ func tmpl_int(i interface{}) (int64, error) {
 	return 0, fmt.Errorf("unknown type - %T", i)	
 }
 
-func tmpl_float(i interface{}) (float64, error) {
+func toFloat(i interface{}) (float64, error) {
 	iv := reflect.ValueOf(i)
 	
 	switch iv.Kind() {
@@ -31,7 +35,7 @@ func tmpl_float(i interface{}) (float64, error) {
 	return 0, fmt.Errorf("unknown type - %T", i)
 }
 
-func tmpl_add(b, a interface{}) (float64, error) {
+func addFunc(b, a interface{}) (float64, error) {
 	av := reflect.ValueOf(a)
 	bv := reflect.ValueOf(b)
 
@@ -57,4 +61,48 @@ func tmpl_add(b, a interface{}) (float64, error) {
 		default:
 			return 0, fmt.Errorf("unknown type - %T", a)
 	}
+}
+
+func regexReplaceAll(re, pl, s string) (string, error) {
+	compiled, err := regexp.Compile(re)
+	if err != nil {
+		return "", err
+	}
+	return compiled.ReplaceAllString(s, pl), nil
+}
+
+func LookupIP(data string) []string {
+	ips, err := net.LookupIP(data)
+	if err != nil {
+		return nil
+	}
+	// "Cast" IPs into strings and sort the array
+	ipStrings := make([]string, len(ips))
+
+	for i, ip := range ips {
+		ipStrings[i] = ip.String()
+	}
+	sort.Strings(ipStrings)
+	return ipStrings
+}
+
+
+func LookupIPV6(data string) []string {
+	var addresses []string
+	for _, ip := range LookupIP(data) {
+		if strings.Contains(ip, ":") {
+			addresses = append(addresses, ip)
+		}
+	}
+	return addresses
+}
+
+func LookupIPV4(data string) []string {
+	var addresses []string
+	for _, ip := range LookupIP(data) {
+		if strings.Contains(ip, ".") {
+			addresses = append(addresses, ip)
+		}
+	}
+	return addresses
 }
