@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sort"
 	"net"
+	"strconv"
 )
 
 func toInt(i interface{}) (int64, error) {
@@ -105,4 +106,9 @@ func LookupIPV4(data string) []string {
 		}
 	}
 	return addresses
+}
+
+func strQuote(data string) (string, error) {
+	s := strconv.Quote(data)
+	return s[1:len(s)-1], nil
 }

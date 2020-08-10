@@ -5,7 +5,7 @@
             "key": "TEST"
         },
         "summary": "Monitoring {{ .labels.node }} - {{ .labels.alertname }} ({{ .status }})",
-        "description": "{{ .annotations.description | printf "%s" }}",
+        "description": "{{ .annotations.description | strQuote }}",
         "issuetype": {
             "id": "10002"
         }
