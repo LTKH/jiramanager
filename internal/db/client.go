@@ -7,11 +7,11 @@ import (
 )
 
 type DbClient interface {
-	LoadTask(mgrp_id string) (config.Task, error)
-	LoadTasks() ([]config.Task, error)
-	SaveTask(task config.Task) error
+	LoadIssue(mgrp_id string) (config.Issue, error)
+	LoadIssues() ([]config.Issue, error)
+	SaveIssue(issue config.Issue) error
 	UpdateStatus(group_id, status_id, status_name string) error
-	DeleteTask(group_id string) error
+	DeleteIssue(group_id string) error
 }
 
 func NewClient(config *config.DB) (DbClient, error) {

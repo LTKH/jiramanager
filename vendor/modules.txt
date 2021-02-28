@@ -1,18 +1,27 @@
+# github.com/andygrunwald/go-jira v1.13.0
+## explicit
+github.com/andygrunwald/go-jira
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+github.com/dgrijalva/jwt-go
+# github.com/fatih/structs v1.0.0
+github.com/fatih/structs
 # github.com/go-sql-driver/mysql v1.5.0
 ## explicit
 github.com/go-sql-driver/mysql
+# github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135
+github.com/google/go-querystring/query
 # github.com/ltkh/alertstrap v1.5.1
 ## explicit
-github.com/ltkh/alertstrap/internal/cache
-github.com/ltkh/alertstrap/internal/config
-github.com/ltkh/alertstrap/internal/db
-github.com/ltkh/alertstrap/internal/db/mysql
-# github.com/naoina/go-stringutil v0.1.0
-github.com/naoina/go-stringutil
 # github.com/naoina/toml v0.1.1
 ## explicit
-github.com/naoina/toml
-github.com/naoina/toml/ast
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# github.com/trivago/tgo v1.0.1
+github.com/trivago/tgo/tcontainer
+github.com/trivago/tgo/treflect
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 ## explicit
 gopkg.in/natefinch/lumberjack.v2
+# gopkg.in/yaml.v2 v2.4.0
+## explicit
+gopkg.in/yaml.v2

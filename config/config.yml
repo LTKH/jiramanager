@@ -1,0 +1,65 @@
+---
+# Global defaults, applied to all receivers where not explicitly overridden. Optional.
+defaults:
+  # API access fields.
+  api_url: https://jiralert.atlassian.net
+  user: 'jiralert'
+  password: 'JIRAlert'
+
+  # JIRA project to create the issue in. Required.
+  project: {"key": "TEST"}
+  # The type of JIRA issue to create. Required.
+  issue_type: {"id": "123"}
+  # Issue priority. Optional.
+  priority: {"id": "123"} 
+  # Go template invocation for generating the summary. Required.
+  summary: '{{ template "jira.summary" . }}'
+  # Go template invocation for generating the description. Optional.
+  description: '{{ template "jira.description" . }}'
+
+db:
+  client: "mysql"
+  conn_string: "root:password@(127.0.0.1)/alertstrap?parseTime=true"
+  issues_table: "mon_issues"
+
+# Receiver definitions. At least one must be defined.
+receivers:
+    # Must match the Alertmanager receiver name. Required.
+  - name: 'jira-ab'
+    # JIRA project to create the issue in. Required.
+    project: {"key": "TEST"}
+    # Go template invocation for generating the summary. Required.
+    summary: 'Monitoring {{ .labels.host }} - {{ .labels.alertname }} ({{ .status }})'
+    # Go template invocation for generating the description. Optional.
+    description: '{{ template "jira.description" . }}'
+    # JIRA components. Optional.
+    components: [{"id": "123"}]
+    # Standard or custom field values to set on created issue. Optional.
+    # See https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/#setting-custom-field-data-for-other-field-types for further examples.
+    fields:
+      # TextField
+      customfield_10001: "Random text"
+      # SelectList
+      customfield_10002: {"value": "red"}
+      # MultiSelect
+      customfield_10003: [{"value": "red"}, {"value": "blue"}, {"value": "green"}]
+
+  - name: 'jira-xy'
+    project: {"key": "TEST"}
+    # Overrides default.
+    issue_type: {"id": "123"}
+    # JIRA components. Optional.
+    components: [{"id": "123"}]
+    # Standard or custom field values to set on created issue. Optional.
+    # See https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/#setting-custom-field-data-for-other-field-types for further examples.
+    fields:
+      # TextField
+      customfield_10001: "Random text"
+      # SelectList
+      customfield_10002: {"value": "red"}
+      # MultiSelect
+      customfield_10003: [{"value": "red"}, {"value": "blue"}, {"value": "green"}]
+
+# File containing template definitions. Required.
+template: config/jirmanager.tmpl
+

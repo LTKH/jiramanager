@@ -1,5 +1,5 @@
 [alerts]
-api = "http://localhost:8100/api/v1/alerts?match[]={alertname=\"up\"}"
+api = "http://localhost:8100/api/v1/alerts"
 
 [jira]
 src = "default.tmpl"

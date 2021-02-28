@@ -1,0 +1,7 @@
+{{ define "jira.description" }}
+{{ if eq .labels.alertname "test" -}}
+TEST
+{{ else -}}
+ELSE
+{{ end }}
+{{ end }}

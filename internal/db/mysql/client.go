@@ -14,39 +14,39 @@ type Client struct {
 }
 
 func NewClient(conf *config.DB) (*Client, error) {
-	conn, err := sql.Open("mysql", conf.Conn_string)
+	conn, err := sql.Open("mysql", conf.ConnString)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{ client: conn, config: conf }, nil
 }
 
-func (db *Client) LoadTask(group_id string) (config.Task, error) {
-    var task config.Task
+func (db *Client) LoadIssue(group_id string) (config.Issue, error) {
+    var issue config.Issue
 
     stmt, err := db.client.Prepare(fmt.Sprintf(
-		"select group_id,status_id,status_name,task_id,task_key,task_self from %s where group_id = ?", 
-		db.config.Tasks_table,
+		"select group_id,status_id,status_name,issue_id,issue_key,issue_self from %s where group_id = ?", 
+		db.config.IssuesTable,
 	))
 	if err != nil {
-		return task, err
+		return issue, err
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(group_id).Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self)
+	err = stmt.QueryRow(group_id).Scan(&issue.GroupId, &issue.StatusId, &issue.StatusName, &issue.IssueId, &issue.IssueKey, &issue.IssueSelf)
 	if err != nil {
-		return task, nil
+		return issue, nil
 	}
 
-  	return task, nil
+  	return issue, nil
 }
 
-func (db *Client) LoadTasks() ([]config.Task, error) {
-	var result []config.Task
+func (db *Client) LoadIssues() ([]config.Issue, error) {
+	var result []config.Issue
 
 	rows, err := db.client.Query(fmt.Sprintf(
-		"select group_id,status_id,status_name,task_id,task_key,task_self,created,updated from %s", 
-		db.config.Tasks_table,
+		"select group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated from %s", 
+		db.config.IssuesTable,
 	))
 	if err != nil {
 		return nil, err
@@ -54,21 +54,21 @@ func (db *Client) LoadTasks() ([]config.Task, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var task config.Task
-        err := rows.Scan(&task.Group_id, &task.Status_id, &task.Status_name, &task.Task_id, &task.Task_key, &task.Task_self, &task.Created, &task.Updated)
+		var issue config.Issue
+        err := rows.Scan(&issue.GroupId, &issue.StatusId, &issue.StatusName, &issue.IssueId, &issue.IssueKey, &issue.IssueSelf, &issue.Created, &issue.Updated)
         if err != nil {
             return nil, err
 		}
-		result = append(result, task) 
+		result = append(result, issue) 
     }
 
   	return result, nil
 }
 
-func (db *Client) SaveTask(task config.Task) error {
+func (db *Client) SaveIssue(issue config.Issue) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
-		"replace into %s (group_id,status_id,status_name,task_id,task_key,task_self,created,updated,template) values (?,?,?,?,?,?,?,?,?)", 
-		db.config.Tasks_table,
+		"replace into %s (group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated,template) values (?,?,?,?,?,?,?,?,?)", 
+		db.config.IssuesTable,
 	))
 	if err != nil {
 		return err
@@ -76,19 +76,18 @@ func (db *Client) SaveTask(task config.Task) error {
 	defer stmt.Close()
 
 	utc := time.Now().UTC().Unix()
-	_, err = stmt.Exec(task.Group_id, task.Status_id, task.Status_name, task.Task_id, task.Task_key, task.Task_self, utc, utc, task.Template)
+	_, err = stmt.Exec(issue.GroupId, issue.StatusId, issue.StatusName, issue.IssueId, issue.IssueKey, issue.IssueSelf, utc, utc, issue.Template)
 	if err != nil {
 		return err
 	}
 
 	return nil
-
 }
 
 func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
 	stmt, err := db.client.Prepare(fmt.Sprintf(
 		"update %s set status_id = ?, status_name = ?, updated = ? where group_id = ?", 
-		db.config.Tasks_table,
+		db.config.IssuesTable,
 	))
 	if err != nil {
 		return err
@@ -105,11 +104,11 @@ func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
 
 }
 
-func (db *Client) DeleteTask(group_id string) error {
+func (db *Client) DeleteIssue(group_id string) error {
 
 	stmt, err := db.client.Prepare(fmt.Sprintf(
 		"delete from %s where group_id = ?", 
-		db.config.Tasks_table,
+		db.config.IssuesTable,
 	))
 	if err != nil {
 		return err
