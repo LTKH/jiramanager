@@ -75,6 +75,7 @@ func (api *Api) UpdateStatus() error {
     }
 
     for _, i := range issues {
+
         u, err := url.Parse(i.IssueSelf)
         if err != nil {
             log.Printf("[error] %v", err)
@@ -93,9 +94,13 @@ func (api *Api) UpdateStatus() error {
             log.Printf("[error] %v", err)
             continue
         }
+
+        if err := api.Client.UpdateStatus(i.GroupId, issue.Fields.Status.ID, issue.Fields.Status.Name); err != nil {
+            log.Printf("[error] %v", err)
+            continue
+        }
         
-        log.Printf("[debug] status: %s\n", issue.Fields.Status.Name)
-        log.Printf("[debug] %v", issue)
+        log.Printf("[info] task status updated: %s", i.IssueKey)
     }
 
     return nil
