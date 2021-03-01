@@ -19,7 +19,7 @@ defaults:
 
 db:
   client: "mysql"
-  conn_string: "root:password@(127.0.0.1)/alertstrap?parseTime=true"
+  conn_string: "root:password@(127.0.0.1)/alerttrap?parseTime=true"
   issues_table: "mon_issues"
 
 # Receiver definitions. At least one must be defined.
