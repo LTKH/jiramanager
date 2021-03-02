@@ -26,6 +26,7 @@ type Defaults struct {
     Description      string                  `yaml:"description"`
     Components       []jira.Component        `yaml:"components"`
     Fields           map[string]interface{}  `yaml:"fields"`
+    ResolveState     []string                `yaml:"resolve_state"`
 }
 
 type DB struct {

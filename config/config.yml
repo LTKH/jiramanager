@@ -16,6 +16,8 @@ defaults:
   summary: '{{ template "jira.summary" . }}'
   # Go template invocation for generating the description. Optional.
   description: '{{ template "jira.description" . }}'
+  # State to remove issue record. Required.
+  resolve_state: ["5"]
 
 db:
   client: "mysql"

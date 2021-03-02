@@ -5,6 +5,7 @@ import (
     "log"
     "io"
     "fmt"
+    "time"
     "net/url"
     "io/ioutil"
     "crypto/sha1"
@@ -95,12 +96,26 @@ func (api *Api) UpdateStatus() error {
             continue
         }
 
-        if err := api.Client.UpdateStatus(i.GroupId, issue.Fields.Status.ID, issue.Fields.Status.Name); err != nil {
-            log.Printf("[error] %v", err)
-            continue
+        if i.StatusId != issue.Fields.Status.ID {
+            if err := api.Client.UpdateStatus(i.GroupId, issue.Fields.Status.ID, issue.Fields.Status.Name); err != nil {
+                log.Printf("[error] %v", err)
+                continue
+            }
+            log.Printf("[info] issue status updated: %s", i.IssueKey)
         }
-        
-        log.Printf("[info] task status updated: %s", i.IssueKey)
+
+        if i.Updated + 600 < time.Now().UTC().Unix() {
+            for _, s := range api.Config.Defaults.ResolveState {
+                if i.StatusId == s {
+                    if err := api.Client.DeleteIssue(i.GroupId); err != nil {
+                        log.Printf("[error] %v", err)
+                        continue
+                    }
+                    log.Printf("[info] issue removed from database: %s", i.IssueKey)
+                }
+            }
+        }
+
     }
 
     return nil
