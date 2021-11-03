@@ -4,7 +4,6 @@ defaults:
   api_url: https://jiralert.atlassian.net
   user: 'jiralert'
   password: 'JIRAlert'
-
   # JIRA project to create the issue in. Required.
   project: {"key": "TEST"}
   # The type of JIRA issue to create. Required.
