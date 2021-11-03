@@ -256,6 +256,12 @@ func New(config *config.Config) (*Api, error) {
         return nil, err
     }
 
+    // create tables
+    err = client.CreateTables()
+    if err != nil {
+        return nil, err
+    }
+
     tmpl, err := template.LoadTemplate(config.Template)
     if err != nil {
         return nil, err

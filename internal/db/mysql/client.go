@@ -1,7 +1,6 @@
 package mysql
 
 import (
-    "fmt"
     "time"
     "database/sql"
     _ "github.com/go-sql-driver/mysql"
@@ -21,13 +20,20 @@ func NewClient(conf *config.DB) (*Client, error) {
     return &Client{ client: conn, config: conf }, nil
 }
 
+func (db *Client) Close() error {
+	db.client.Close()
+
+	return nil
+}
+
+func (db *Client) CreateTables() error {
+    return nil
+}
+
 func (db *Client) LoadIssue(group_id string) (config.Issue, error) {
     var issue config.Issue
 
-    stmt, err := db.client.Prepare(fmt.Sprintf(
-        "select group_id,status_id,status_name,issue_id,issue_key,issue_self from %s where group_id = ?", 
-        db.config.IssuesTable,
-    ))
+    stmt, err := db.client.Prepare("select group_id,status_id,status_name,issue_id,issue_key,issue_self from issues where group_id = ?")
     if err != nil {
         return issue, err
     }
@@ -44,10 +50,7 @@ func (db *Client) LoadIssue(group_id string) (config.Issue, error) {
 func (db *Client) LoadIssues() ([]config.Issue, error) {
     var result []config.Issue
 
-    rows, err := db.client.Query(fmt.Sprintf(
-        "select group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated from %s", 
-        db.config.IssuesTable,
-    ))
+    rows, err := db.client.Query("select group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated from issues")
     if err != nil {
         return nil, err
     }
@@ -66,10 +69,7 @@ func (db *Client) LoadIssues() ([]config.Issue, error) {
 }
 
 func (db *Client) SaveIssue(issue config.Issue) error {
-    stmt, err := db.client.Prepare(fmt.Sprintf(
-        "replace into %s (group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated,template) values (?,?,?,?,?,?,?,?,?)", 
-        db.config.IssuesTable,
-    ))
+    stmt, err := db.client.Prepare("replace into issues (group_id,status_id,status_name,issue_id,issue_key,issue_self,created,updated,template) values (?,?,?,?,?,?,?,?,?)")
     if err != nil {
         return err
     }
@@ -85,10 +85,7 @@ func (db *Client) SaveIssue(issue config.Issue) error {
 }
 
 func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
-    stmt, err := db.client.Prepare(fmt.Sprintf(
-        "update %s set status_id = ?, status_name = ?, updated = ? where group_id = ?", 
-        db.config.IssuesTable,
-    ))
+    stmt, err := db.client.Prepare("update issues set status_id = ?, status_name = ?, updated = ? where group_id = ?")
     if err != nil {
         return err
     }
@@ -105,11 +102,7 @@ func (db *Client) UpdateStatus(group_id, status_id, status_name string) error {
 }
 
 func (db *Client) DeleteIssue(group_id string) error {
-
-    stmt, err := db.client.Prepare(fmt.Sprintf(
-        "delete from %s where group_id = ?", 
-        db.config.IssuesTable,
-    ))
+    stmt, err := db.client.Prepare("delete from issues where group_id = ?")
     if err != nil {
         return err
     }

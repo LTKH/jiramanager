@@ -32,7 +32,6 @@ type Defaults struct {
 type DB struct {
     Client           string                  `yaml:"client"`
     ConnString       string                  `yaml:"conn_string"`
-    IssuesTable      string                  `yaml:"issues_table"`
 }
 
 type Receiver struct {

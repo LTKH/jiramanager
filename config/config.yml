@@ -20,9 +20,8 @@ defaults:
   resolve_state: ["5"]
 
 db:
-  client: "mysql"
-  conn_string: "root:password@(127.0.0.1)/alerttrap?parseTime=true"
-  issues_table: "mon_issues"
+  client: "sqlite3"
+  conn_string: "config/dbase.db"
 
 # Receiver definitions. At least one must be defined.
 receivers:

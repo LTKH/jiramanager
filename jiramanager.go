@@ -10,7 +10,7 @@ import (
     "flag"
     "net/http"
     "gopkg.in/natefinch/lumberjack.v2"
-    "github.com/ltkh/jiramanager/internal/db"
+    //"github.com/ltkh/jiramanager/internal/db"
     "github.com/ltkh/jiramanager/internal/config"
     "github.com/ltkh/jiramanager/internal/api/v1"
     //"github.com/ltkh/jiramanager/internal/template"
@@ -45,12 +45,6 @@ func main() {
 
     // Loading configuration file
     cfg, err := config.New(*cfFile)
-    if err != nil {
-        log.Fatalf("[error] %v", err)
-    }
-
-    // Connection to data base
-    _, err = db.NewClient(cfg.DB); 
     if err != nil {
         log.Fatalf("[error] %v", err)
     }
@@ -94,64 +88,5 @@ func main() {
 
         time.Sleep(*interval * time.Second)
     }
-
-    /*
-
-    // Checking the status of tasks
-    if cfg.Server.Check_enabled {
-
-        go func(cfg *config.Config, clnt db.DbClient) {
-
-            if cfg.Server.Check_interval == 0 {
-                cfg.Server.Check_interval = 600
-            }
-
-            for {
-
-                //geting tasks from database
-                tasks, err := clnt.LoadTasks()
-                if err != nil {
-                    log.Printf("[error] %v", err)
-                    continue
-                }
-
-                for _, task := range tasks {
-                    time.Sleep(cfg.Server.Check_delay * time.Second)
-
-                    //task.Updated = time.Now().UTC().Unix()
-                    issue, err := template.UpdateTaskStatus(task, cfg, clnt)
-                    if err != nil {
-                        log.Printf("[error] task update id %s: %v", task.Task_id, err)
-                        continue
-                    }
-
-                    if issue.Fields.Status.Id != task.Status_id {
-                        log.Printf("[info] task status updated: %s", task.Task_self)
-                    }
-
-                    if task.Updated + cfg.Server.Check_resolve < time.Now().UTC().Unix() {
-                        for _, s := range cfg.Server.Check_status {
-                            if issue.Fields.Status.Id == s {
-                                if err := clnt.DeleteTask(task.Group_id); err != nil {
-                                    log.Printf("[error] task delete id %s: %v", task.Task_id, err)
-                                    continue
-                                }
-                                log.Printf("[info] task is removed from the database: %v", task.Task_self)
-                            }
-                        }
-                    }
-
-                }
-
-                time.Sleep(cfg.Server.Check_interval * time.Second)
-            }
-        }(&cfg, client)
-    }
-
-    if cfg.Server.Alerts_interval == 0 {
-        cfg.Server.Alerts_interval = 600
-    }
-
-    
-    */
 }
+
