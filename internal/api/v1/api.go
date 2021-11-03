@@ -67,6 +67,11 @@ func encodeResp(resp *Resp) []byte {
     return jsn
 }
 
+func (api *Api) ApiHealthy(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(200)
+    w.Write(encodeResp(&Resp{Status:"success"}))
+}
+
 func (api *Api) UpdateStatus() error {
     // Geting issues from database
     issues, err := api.Client.LoadIssues()

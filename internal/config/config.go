@@ -85,12 +85,6 @@ func New(filename string) (*Config, error) {
         if _, err := url.Parse(rc.ApiUrl); err != nil {
             return cfg, fmt.Errorf("invalid api_url %q in receiver %q: %s", rc.ApiUrl, rc.Name, err)
         }
-        if cfg.Defaults.User == "" {
-            return cfg, fmt.Errorf("missing user in receiver %q", rc.Name)
-        }
-        if cfg.Defaults.Password == "" {
-            return cfg, fmt.Errorf("missing password in receiver %q", rc.Name)
-        }
 
         // Check required issue fields
         if rc.Project.ID == "" && rc.Project.Key == "" && rc.Project.Name == "" {

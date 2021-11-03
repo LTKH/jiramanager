@@ -1,4 +1,3 @@
----
 # Global defaults, applied to all receivers where not explicitly overridden. Optional.
 defaults:
   # API access fields.

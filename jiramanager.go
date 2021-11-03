@@ -56,6 +56,7 @@ func main() {
     }
 
     // Enabled listen port
+    http.HandleFunc("/-/healthy", apiV1.ApiHealthy)
     http.HandleFunc("/api/v1/alerts", apiV1.ApiAlerts)
 
     go func(){
