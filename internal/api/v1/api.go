@@ -225,6 +225,16 @@ func (api *Api) readChannel(receiver *config.Receiver) {
                         Password: api.Config.Defaults.Password,
                     }
 
+                    issues, err := api.Client.LoadIssues()
+                    if err != nil {
+                        log.Printf("[error] load issues %v", err)
+                        continue
+                    }
+                    if len(issues) > api.Config.DB.CreationLimit {
+                        log.Print("[error] exceeded the limit for creating tasks")
+                        continue
+                    }
+
                     is, err = createIssue(receiver.ApiUrl, tp, is)
                     if err != nil {
                         log.Printf("[error] create issue %v", err)

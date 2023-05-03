@@ -32,6 +32,7 @@ type Defaults struct {
 type DB struct {
     Client           string                  `yaml:"client"`
     ConnString       string                  `yaml:"conn_string"`
+    CreationLimit    int                     `yaml:"creation_limit"`         
 }
 
 type Receiver struct {

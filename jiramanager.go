@@ -23,7 +23,7 @@ func main() {
 
     // Command-line flag parsing
     listen          := flag.String("listen-address", ":9097", "listen address")
-    cfFile          := flag.String("config", "", "config file")
+    cfFile          := flag.String("config", "config/config.yml", "config file")
     lgFile          := flag.String("logfile", "", "log file")
     interval        := flag.Duration("interval", 600, "interval")
     logMaxSize      := flag.Int("log.max-size", 1, "log max size") 

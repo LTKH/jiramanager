@@ -20,6 +20,7 @@ defaults:
 db:
   client: "sqlite3"
   conn_string: "config/dbase.db"
+  creation_limit: 5 
 
 # Receiver definitions. At least one must be defined.
 receivers:
